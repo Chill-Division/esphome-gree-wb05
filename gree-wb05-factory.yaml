@@ -1,0 +1,13 @@
+# Factory firmware: the image to flash onto a module the first time.
+#
+# On first boot it has no WiFi details, so it opens a "Gree AC <suffix>" hotspot. Join it and
+# enter your WiFi in the captive portal. The module then joins your network and shows up as
+# discovered in Home Assistant and as "ready for adoption" in the ESPHome dashboard. Adopting it
+# writes a small config that pulls in gree-wb05.yaml as a package and adds an API key.
+
+packages:
+  device: !include gree-wb05.yaml
+
+dashboard_import:
+  package_import_url: github://Chill-Division/esphome-gree-wb05/gree-wb05.yaml@main
+  import_full_config: false

@@ -50,6 +50,30 @@ talks to Gree's cloud and the hardware identification:
   display, plasma, sleep, X-fan and Save. Whether this module's link uses exactly the same
   protocol is one of the things the on-site capture checks.
 
+## Setting up a flashed module
+
+The repo follows ESPHome's ready-made project pattern:
+
+* [`gree-wb05.yaml`](gree-wb05.yaml) is the device package: hardware, AC link and entities, no
+  credentials.
+* [`gree-wb05-factory.yaml`](gree-wb05-factory.yaml) is what gets flashed the first time. It adds
+  [`dashboard_import`](https://esphome.io/components/dashboard_import/) for adoption.
+
+After the first flash:
+
+1. The module has no WiFi details, so it opens a **`Gree AC <suffix>`** hotspot. Join it from a
+   phone and enter your WiFi in the captive portal.
+2. It joins your network and appears in **Home Assistant** under *Settings → Devices & services →
+   Discovered*, and in the **ESPHome dashboard** as ready for adoption.
+3. **Adopt** it in the ESPHome dashboard. That writes a short config which pulls in
+   `gree-wb05.yaml` as a package, adds your WiFi secrets and an API encryption key, and installs it
+   over WiFi. Then add it to Home Assistant with that key.
+
+Each unit gets a unique name (`gree-ac-1a2b3c`, from its MAC) until you rename it on adoption.
+
+If you'd rather skip the hotspot, add a `wifi:` block with your network to the factory config
+before building the first image.
+
 ## Building
 
 ```bash
@@ -57,8 +81,7 @@ talks to Gree's cloud and the hardware identification:
 python3 -m venv .venv
 .venv/bin/pip install "git+https://github.com/Bl00d-B0b/esphome.git@057c9625e1e7671464cedc0fa113edc489bd95c6"
 
-cp secrets.yaml.example secrets.yaml   # then edit it
-.venv/bin/esphome compile gree-wb05.yaml
+.venv/bin/esphome compile gree-wb05-factory.yaml
 ```
 
 The first build downloads LibreTiny from the pinned source and the ARM toolchain. It produces
@@ -79,6 +102,7 @@ flashing, install the AmebaD branch into LibreTiny's tool environment:
 - [ ] Secure boot / signature check status known
 - [ ] LP UART pins confirmed and the LP UART fix verified on hardware
 - [ ] AC link protocol confirmed against a real unit
+- [ ] WiFi hotspot / captive portal, mDNS discovery and adoption verified on this chip
 - [ ] First flash, then OTA updates
 
 ## License

@@ -1,6 +1,9 @@
 # ESPHome for the Gree GRJWB05-J10 WiFi module (Realtek RTL8720DF), the module soldered onto
 # the receiver/display board of Gree Alto air conditioners.
 #
+# This is the device package: hardware, AC link and entities, with no credentials. Flash
+# gree-wb05-factory.yaml; once adopted, the ESPHome dashboard imports this file as a package.
+#
 # EXPERIMENTAL. Read README.md and docs/ON-SITE.md before flashing anything.
 
 substitutions:
@@ -10,6 +13,8 @@ substitutions:
 esphome:
   name: ${name}
   friendly_name: ${friendly_name}
+  # Each unit gets a unique name (gree-ac-1a2b3c) until it is adopted.
+  name_add_mac_suffix: true
   project:
     name: chill-division.esphome-gree-wb05
     version: "0.1.0"
@@ -29,20 +34,16 @@ logger:
   # Module pads 8/9, the same port used for flashing.
   baud_rate: 115200
 
+# Native API. Adopting the device in the ESPHome dashboard adds an encryption key.
 api:
-  encryption:
-    key: !secret api_encryption_key
 
 ota:
   - platform: esphome
-    password: !secret ota_password
 
 wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  ap:
-    ssid: ${friendly_name} fallback
-    password: !secret fallback_ap_password
+  # With no network configured (or if it can't connect), the module opens a
+  # "Gree AC <suffix>" hotspot with a captive portal for entering WiFi details.
+  ap: {}
 
 captive_portal:
 

@@ -103,7 +103,9 @@ Stop here and send the backup (privately, not to this repo) for analysis. It tel
 ## Step 5: flash ESPHome
 
 To be written once the backup has been analysed. Expected shape: enter download mode as in step 3
-and write the ESPHome image. After that first wired flash, every update goes over WiFi (ESPHome OTA).
+and write the **factory** image (`gree-wb05-factory.yaml`). On boot the module opens a
+`Gree AC <suffix>` hotspot for WiFi setup, then shows up for adoption in Home Assistant and the
+ESPHome dashboard (see the README). After that first wired flash, every update goes over WiFi.
 
 ## Restoring Gree's firmware
 
