@@ -1,0 +1,79 @@
+# ESPHome for the Gree GRJWB05-J10 WiFi module (Realtek RTL8720DF), the module soldered onto
+# the receiver/display board of Gree Alto air conditioners.
+#
+# EXPERIMENTAL. Read README.md and docs/ON-SITE.md before flashing anything.
+
+substitutions:
+  name: gree-ac
+  friendly_name: Gree AC
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  project:
+    name: chill-division.esphome-gree-wb05
+    version: "0.1.0"
+
+rtl87xx:
+  # The GRJWB05-J10 follows the BW16 reference layout: log UART on PA7/PA8 (module pads 8/9)
+  # and the LP UART on PB1/PB2 (pads 4/5). The LP UART pins are assumed until confirmed
+  # from a flash dump; the SDK also allows PA12/PA13 and PA26/PA25.
+  board: bw16
+  framework:
+    version: 0.0.0
+    # LibreTiny with the AmebaD family (libretiny-eu/libretiny#403) plus fixes for the LP UART,
+    # SoftwareSerial and mDNS.
+    source: https://github.com/ChillingSilence/libretiny.git#8175133267c477e13ed95229087b1f7233a6b292
+
+logger:
+  # Module pads 8/9, the same port used for flashing.
+  baud_rate: 115200
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: ${friendly_name} fallback
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+# Link to the indoor unit's main board: module pads 4 (LP_UTXD) and 5 (LP_URXD).
+uart:
+  id: ac_uart
+  tx_pin: PB1
+  rx_pin: PB2
+  baud_rate: 4800
+  parity: EVEN
+
+external_components:
+  - source: github://Chill-Division/esphome-gree-wb05@main
+    components: [sinclair_ac]
+
+climate:
+  - platform: sinclair_ac
+    name: Air conditioner
+    horizontal_swing_select:
+      name: Horizontal swing
+    vertical_swing_select:
+      name: Vertical swing
+    display_select:
+      name: Display
+    display_unit_select:
+      name: Display unit
+    plasma_switch:
+      name: Plasma
+    sleep_switch:
+      name: Sleep
+    xfan_switch:
+      name: X-fan
+    save_switch:
+      name: Save

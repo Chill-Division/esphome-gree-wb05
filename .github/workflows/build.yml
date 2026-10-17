@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: platformio-${{ hashFiles('gree-wb05.yaml') }}
+      - name: Install ESPHome with RTL8720D support
+        run: pip install "git+https://github.com/Bl00d-B0b/esphome.git@057c9625e1e7671464cedc0fa113edc489bd95c6"
+      - name: Secrets
+        run: cp secrets.yaml.example secrets.yaml
+      - name: Compile (using this checkout's component)
+        run: |
+          sed "s#github://Chill-Division/esphome-gree-wb05@main#{type: local, path: components}#" gree-wb05.yaml > ci.yaml
+          esphome compile ci.yaml
